@@ -1,0 +1,7 @@
+{
+  "name": "asaas-checksign-integration",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Erick Gannem <erickgannem@gmail.com>",
+  "license": "MIT"
+}
