@@ -7,22 +7,21 @@ export default class ClickSignController {
   static async createDocument(req, res, next) {
     const { TEMPLATE_KEY, CLICKSIGN_SANDBOX_TOKEN } = process.env;
     try {
-      const { nome, endereço, cpf } = req.body;
+      const {
+        nome, sobrenome, cpf, telefone, endereco, email,
+      } = req.body;
 
-      const call = await clickSignSandboxAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_SANDBOX_TOKEN}`, {
+      const { data } = await clickSignSandboxAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_SANDBOX_TOKEN}`, {
         document: {
-          path: '/Modelos/TEST00123.docx',
+          path: `/Modelos/FORM-${nome.split(' ').join('_').toUpperCase()}-${cpf}.docx`,
           template: {
             data: {
-              nome,
-              endereço,
-              cpf,
+              nome, sobrenome, cpf, telefone, endereco, email,
             },
           },
         },
       });
-
-      return res.status(200).json(call);
+      return res.status(200).json(data.document);
     } catch (err) {
       return next(err);
     }
