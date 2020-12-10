@@ -1,10 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
 import routes from './routes.js';
 
 import errorMiddleware from './middlewares/errorMiddleware.js';
 
+dotenv.config({});
 class App {
   constructor() {
     this.server = express();

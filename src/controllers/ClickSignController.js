@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
 import { clickSignSandboxAPI } from '../helpers/clickSignApi.js';
-
-dotenv.config({});
 
 export default class ClickSignController {
   static async createDocument(req, res, next) {
