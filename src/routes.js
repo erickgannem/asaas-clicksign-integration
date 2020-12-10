@@ -4,6 +4,6 @@ import ClickSignController from './controllers/ClickSignController.js';
 
 const routes = Router();
 
-routes.post('/create-document', ClickSignController.createDocument);
+routes.get('/get-documents', ClickSignController.getDocuments);
 
 export default routes;
