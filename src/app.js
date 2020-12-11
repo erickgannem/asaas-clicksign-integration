@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 
 import routes from './routes.js';
 
@@ -16,6 +17,7 @@ class App {
   }
 
   middlewares() {
+    this.server.use(helmet());
     this.server.use(express.json());
     this.server.use(cors());
   }
