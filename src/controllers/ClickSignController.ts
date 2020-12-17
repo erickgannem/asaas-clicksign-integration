@@ -23,14 +23,7 @@ export default class ClickSignController {
     }
   }
 
-  static async getSigner (req: Request, res: Response, next: NextFunction) {
-    const { signer_key: signerKey } = req.params
-    try {
-      const signerRequest = await clickSignSandboxAPI.get(`/api/v1/signers/${signerKey}?access_token=${process.env.CLICKSIGN_SANDBOX_TOKEN}`)
-      const { data } = signerRequest
-      return res.status(200).json(data)
-    } catch (err) {
-      return next(err)
-    }
+  static async listenWebhook(req: Request, res: Response, next: NextFunction) {
+    
   }
 }
