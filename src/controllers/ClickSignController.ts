@@ -4,27 +4,27 @@ import crypto from 'crypto'
 
 export default class ClickSignController {
   static async listenWebhook (req: Request, res: Response, next: NextFunction) {
-    const { headers, rawBody } = req
+    const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
+    try {
+      if (!HMAC_SECRET_KEY) return res.end(() => { throw new Error('HMAC Secret Key does not exist!') })
 
-    if (HMAC_SECRET_KEY) {
       const hmac = crypto.createHmac('sha256', HMAC_SECRET_KEY)
       hmac.update(rawBody)
       const hash = hmac.digest('hex')
 
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
-      if (sha256matches) {
-        console.log('Response came from ClickSign')
-        // Do some magic here
-      } else {
-        throw new Error('Hashes don\'t match!')
-      }
-    } else {
-      throw new Error('HMAC secret key is missing')
-    }
+      if (!sha256matches) return res.end(() => { throw new Error('SHA256 does not match!') })
 
-    return res.status(200).end()
+      // body.document.template.data
+      const { data: documentData } = body.document.template
+      console.log(documentData)
+
+      return res.status(200).end()
+    } catch (err) {
+      return next(err)
+    }
   }
 
   static async createDocument (req: Request, res: Response, next: NextFunction) {
