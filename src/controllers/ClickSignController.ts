@@ -7,7 +7,7 @@ export default class ClickSignController {
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
     try {
-      if (!HMAC_SECRET_KEY) return res.end(() => { throw new Error('HMAC Secret Key does not exist!') })
+      if (!HMAC_SECRET_KEY) return res.status(500).end(() => { process.stdout.write('HMAC Secret Key does not exist!') })
 
       const hmac = crypto.createHmac('sha256', HMAC_SECRET_KEY)
       hmac.update(rawBody)
@@ -15,12 +15,12 @@ export default class ClickSignController {
 
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
-      if (!sha256matches) return res.end(() => { throw new Error('SHA256 does not match!') })
+      if (!sha256matches) return res.status(404).end(() => { process.stdout.write('SHA256 does not match!') })
 
       // body.document.template.data
       const { data: documentData } = body.document.template
-      console.log(documentData)
 
+      process.stdout.write('Data succesfully sent')
       return res.status(200).end()
     } catch (err) {
       return next(err)

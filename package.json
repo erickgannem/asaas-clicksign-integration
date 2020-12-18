@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/server.ts",
-    "debug": "NODE_ENV=debug nodemon --inspect src/server.js"
+    "debug": "NODE_ENV=debug nodemon --inspect src/server.ts"
   },
   "dependencies": {
     "axios": "^0.21.0",
