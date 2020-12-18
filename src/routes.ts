@@ -5,7 +5,6 @@ import ClickSignController from './controllers/ClickSignController'
 const routes = Router()
 
 routes.post('/webhook', ClickSignController.listenWebhook)
-routes.get('/documents', ClickSignController.getDocuments)
-routes.get('/documents/:document_key', ClickSignController.getDocument)
+routes.post('/documents', ClickSignController.createDocument)
 
 export default routes
