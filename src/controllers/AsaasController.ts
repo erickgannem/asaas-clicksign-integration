@@ -9,10 +9,20 @@ export default class AsaasController {
     try {
       const { data } = await asaasAPI.get(`/api/v3/customers?${query}=${parameter}`)
 
-      return res.status(200).json(data)
+      req.clients = data
+      next()
     } catch (err) {
       return next(err)
     }
+  }
+
+  static async getSingleClient (req: Request, res: Response, next: NextFunction) {
+    const { data } = req.clients
+    const client = data[0]
+
+    const { id } = client
+
+    return res.status(200).json(id)
   }
 
   static async createClient (req: Request, res: Response, next: NextFunction) { return process.stdout.write('createClient') }

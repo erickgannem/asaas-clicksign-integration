@@ -7,5 +7,5 @@ const routes = Router()
 
 routes.post('/webhook', ClickSignController.listenWebhook)
 routes.post('/documents', ClickSignController.createDocument)
-routes.post('/clients', AsaasController.lookForClients)
+routes.post('/client', AsaasController.lookForClients, AsaasController.getSingleClient)
 export default routes
