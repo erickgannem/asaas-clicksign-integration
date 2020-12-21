@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from 'express'
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
     const { cpfCnpj } = req.body
+    const { clicksignDocumentData } = req
     try {
       const { data: dataKey } = await asaasAPI.get(`/api/v3/customers?cpfCnpj=${cpfCnpj}`)
       const { data: clientDataArray } = dataKey
@@ -31,7 +32,7 @@ export default class AsaasController {
     }
   }
 
-  static async createPayment (req: Request, res: Response, next:NextFunction) {
+  static async createCharge (req: Request, res: Response, next:NextFunction) {
 
   }
 }

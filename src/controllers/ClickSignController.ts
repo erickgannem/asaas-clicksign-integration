@@ -4,6 +4,7 @@ import crypto from 'crypto'
 
 export default class ClickSignController {
   static async listenWebhook (req: Request, res: Response, next: NextFunction) {
+    debugger
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
     try {
@@ -15,14 +16,18 @@ export default class ClickSignController {
 
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
-      if (!sha256matches) return res.status(404).end(() => { process.stdout.write('SHA256 does not match!') })
+      if (!sha256matches) return res.status(400).end(() => { process.stdout.write('SHA256 does not match!') })
 
-      // body.document.template.data
-      const { data: documentData } = body.document.template
+      const documentData = body
+      const { document } = documentData
 
-      process.stdout.write('Data succesfully sent')
-      // save this data on req
-      return res.status(200).json(documentData)
+      const documentIsClosed = (document.status === 'closed')
+
+      if (!documentIsClosed) return res.status(200).end()
+
+      req.clicksignDocumentData = documentData
+
+      return res.status(200).end(() => next())
     } catch (err) {
       return next(err)
     }
