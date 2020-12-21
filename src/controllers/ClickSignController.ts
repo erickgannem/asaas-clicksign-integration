@@ -21,6 +21,7 @@ export default class ClickSignController {
       const { data: documentData } = body.document.template
 
       process.stdout.write('Data succesfully sent')
+      // save this data on req
       return res.status(200).json(documentData)
     } catch (err) {
       return next(err)

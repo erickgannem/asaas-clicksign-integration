@@ -2,28 +2,36 @@ import asaasAPI from '../helpers/asaasApi'
 import { Request, Response, NextFunction } from 'express'
 
 export default class AsaasController {
-  static async lookForClients (req: Request, res: Response, next: NextFunction) {
-    const query = (req.body.name ? 'name' : 'cpfCnpj')
-    const parameter = (req.body.name ? req.body.name : req.body.cpfCnpj)
-
+  static async fetchClients (req: Request, res: Response, next: NextFunction) {
+    const { cpfCnpj } = req.body
     try {
-      const { data } = await asaasAPI.get(`/api/v3/customers?${query}=${parameter}`)
+      const { data: dataKey } = await asaasAPI.get(`/api/v3/customers?cpfCnpj=${cpfCnpj}`)
+      const { data: clientDataArray } = dataKey
 
-      req.clients = data
+      const asaasClient = clientDataArray[0] ? clientDataArray[0] : {}
+
+      req.asaasClient = asaasClient
+
       next()
     } catch (err) {
       return next(err)
     }
   }
 
-  static async getSingleClient (req: Request, res: Response, next: NextFunction) {
-    const { data } = req.clients
-    const client = data[0]
+  static async checkIfClientExists (req: Request, res: Response, next: NextFunction) {
+    const { asaasClient } = req
+    const clientExists = !!Object.keys(asaasClient).length
 
-    const { id } = client
-
-    return res.status(200).json(id)
+    if (clientExists) {
+      next()
+    } else {
+      // make call to create user
+      // with data on the req
+      next()
+    }
   }
 
-  static async createClient (req: Request, res: Response, next: NextFunction) { return process.stdout.write('createClient') }
+  static async createPayment (req: Request, res: Response, next:NextFunction) {
+
+  }
 }
