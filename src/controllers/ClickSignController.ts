@@ -4,9 +4,9 @@ import crypto from 'crypto'
 
 export default class ClickSignController {
   static async listenWebhook (req: Request, res: Response, next: NextFunction) {
-    debugger
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
+
     try {
       if (!HMAC_SECRET_KEY) return res.status(500).end(() => { process.stdout.write('HMAC Secret Key does not exist!') })
 
@@ -18,14 +18,27 @@ export default class ClickSignController {
 
       if (!sha256matches) return res.status(400).end(() => { process.stdout.write('SHA256 does not match!') })
 
-      const documentData = body
-      const { document } = documentData
+      const triggeringData = body
+      const { document } = triggeringData
 
       const documentIsClosed = (document.status === 'closed')
 
       if (!documentIsClosed) return res.status(200).end()
 
-      req.clicksignDocumentData = documentData
+      req.clicksignDocumentKey = triggeringData.document.key
+
+      return res.status(200).end(() => next())
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  static async getDocument (req: Request, res: Response, next: NextFunction) {
+    const { clicksignDocumentKey } = req
+    try {
+      const documentRequest = await clickSignSandboxAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_SANDBOX_TOKEN}`)
+      const { data } = documentRequest
+      req.clicksignDocumentData = data
 
       return res.status(200).end(() => next())
     } catch (err) {
@@ -37,16 +50,14 @@ export default class ClickSignController {
     const { TEMPLATE_KEY, CLICKSIGN_SANDBOX_TOKEN } = process.env
     try {
       const {
-        nome, cpf, telefone, endereco, email
+        cpf
       } = req.body
 
       const { data } = await clickSignSandboxAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_SANDBOX_TOKEN}`, {
         document: {
-          path: `/Modelos/FORM-${nome.split(' ').join('_').toUpperCase()}-${cpf}.docx`,
+          path: `/Modelos/FORM-${cpf}.docx`,
           template: {
-            data: {
-              nome, cpf, telefone, endereco, email
-            }
+            data: req.body
           }
         }
       })
