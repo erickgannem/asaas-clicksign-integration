@@ -47,7 +47,7 @@ export default class AsaasController {
           province: data.bairro,
           postalCode: data.cep
         }
-        const newClient = await asaasAPI.post('/api/v3/customers', { body: JSON.stringify(body) })
+        const newClient = await asaasAPI.post('/api/v3/customers', body)
         req.asaasClient = newClient
         next()
       } catch (err) {
@@ -57,7 +57,7 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
-    process.stdout.write('End of flux reached')
-    return res.status(200).json({ message: 'End of workflow reached' })
+    process.stdout.write('Flux ended')
+    return 0
   }
 }

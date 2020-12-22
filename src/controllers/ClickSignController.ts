@@ -27,7 +27,7 @@ export default class ClickSignController {
 
       req.clicksignDocumentKey = triggeringData.document.key
 
-      return res.status(200).end(() => next())
+      res.sendStatus(200).end(() => next())
     } catch (err) {
       return next(err)
     }
@@ -40,7 +40,7 @@ export default class ClickSignController {
       const { data } = documentRequest
       req.clicksignDocumentData = data
 
-      return res.status(200).end(() => next())
+      next()
     } catch (err) {
       return next(err)
     }
