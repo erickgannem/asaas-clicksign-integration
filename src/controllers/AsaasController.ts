@@ -57,7 +57,8 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
-    process.stdout.write('Flux ended')
-    return 0
+    const { id: clientId } = req.asaasClient
+
+    return clientId
   }
 }

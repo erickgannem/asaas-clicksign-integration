@@ -1,4 +1,4 @@
-import { clickSignSandboxAPI } from '../helpers/clickSignApi'
+import clickSignAPI from '../helpers/clickSignApi'
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
 
@@ -36,7 +36,7 @@ export default class ClickSignController {
   static async getDocument (req: Request, res: Response, next: NextFunction) {
     const { clicksignDocumentKey } = req
     try {
-      const documentRequest = await clickSignSandboxAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_SANDBOX_TOKEN}`)
+      const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_API_TOKEN}`)
       const { data } = documentRequest
       req.clicksignDocumentData = data
 
@@ -47,13 +47,13 @@ export default class ClickSignController {
   }
 
   static async createDocument (req: Request, res: Response, next: NextFunction) {
-    const { TEMPLATE_KEY, CLICKSIGN_SANDBOX_TOKEN } = process.env
+    const { TEMPLATE_KEY, CLICKSIGN_API_TOKEN } = process.env
     try {
       const {
         cpf
       } = req.body
 
-      const { data } = await clickSignSandboxAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_SANDBOX_TOKEN}`, {
+      const { data } = await clickSignAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_API_TOKEN}`, {
         document: {
           path: `/Modelos/FORM-${cpf}.docx`,
           template: {

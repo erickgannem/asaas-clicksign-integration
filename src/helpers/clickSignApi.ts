@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 
-const clickSignSandboxAPI: AxiosInstance = axios.create({
+const clickSignAPI: AxiosInstance = axios.create({
   baseURL: 'https://sandbox.clicksign.com/',
   headers: {
     'Content-Type': 'application/json',
@@ -9,6 +9,4 @@ const clickSignSandboxAPI: AxiosInstance = axios.create({
   }
 })
 
-const clickSignLiveAPI = {}
-
-export { clickSignSandboxAPI, clickSignLiveAPI }
+export default clickSignAPI
