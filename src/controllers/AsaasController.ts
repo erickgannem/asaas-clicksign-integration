@@ -58,6 +58,7 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
+    debugger
     try {
       const { id: clientId } = req.asaasClient.data
       const { data: documentData } = req.clicksignDocumentData.document.template
@@ -65,8 +66,8 @@ export default class AsaasController {
       const value = documentData['valor negociado']
       const installmentValue = documentData['valor parcela']
       const installmentCount = documentData.parcelas
-      const paymentType = (~documentData['forma de pagamento'].indexOf('boleto')) ? 'BOLETO' : 'CREDIT_CARD'
-
+      const paymentType = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD'
+      // Steps to grab credit card info
       const installmentDay = documentData['vencimento da parcela']
 
       let installmentDate
