@@ -21,7 +21,6 @@ export default class AsaasController {
   }
 
   static async checkIfClientExists (req: Request, res: Response, next: NextFunction) {
-    debugger
     const { asaasClient, clicksignDocumentData } = req
     const clientExists = !!Object.keys(asaasClient).length
 
@@ -57,8 +56,20 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
-    const { id: clientId } = req.asaasClient
+    debugger
+    try {
+      const { id: clientId } = req.asaasClient.data
+      const { data: documentData } = req.clicksignDocumentData.document.template
 
-    return clientId
+      const value = documentData['valor negociado']
+      const installmentValue = documentData['valor parcela']
+      const installmentcount = documentData.parcelas
+      const paymentType = documentData['forma de pagamento']
+      const installmentDay = documentData['vencimento da parcela']
+
+      return clientId
+    } catch (err) {
+      return err
+    }
   }
 }
