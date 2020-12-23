@@ -1,13 +1,15 @@
 import asaasAPI from '../helpers/asaasApi'
 import { Request, Response, NextFunction } from 'express'
+import removeCPFChars from '../helpers/removeCPFchars'
+import { addMonths, isAfter, isToday, format } from 'date-fns'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
     const { clicksignDocumentData } = req
     const cpfCnpj = clicksignDocumentData.document.template.data.cpf
-    const formattedCpfCnpj = cpfCnpj.split('.').join('').split('-').join('')
+    const cleanCpfCnpj = removeCPFChars(cpfCnpj)
     try {
-      const { data } = await asaasAPI.get(`/api/v3/customers?cpfCnpj=${formattedCpfCnpj}`)
+      const { data } = await asaasAPI.get(`/api/v3/customers?cpfCnpj=${cleanCpfCnpj}`)
       const { data: clientDataArray } = data
 
       const asaasClient = clientDataArray[0] ? clientDataArray[0] : {}
@@ -56,18 +58,51 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
-    debugger
     try {
       const { id: clientId } = req.asaasClient.data
       const { data: documentData } = req.clicksignDocumentData.document.template
 
       const value = documentData['valor negociado']
       const installmentValue = documentData['valor parcela']
-      const installmentcount = documentData.parcelas
-      const paymentType = documentData['forma de pagamento']
+      const installmentCount = documentData.parcelas
+      const paymentType = (~documentData['forma de pagamento'].indexOf('boleto')) ? 'BOLETO' : 'CREDIT_CARD'
+
       const installmentDay = documentData['vencimento da parcela']
 
-      return clientId
+      let installmentDate
+      const today = new Date()
+      const proposedInstallmentDateStr = `${today.getMonth() + 1}-${installmentDay}-${today.getFullYear()}`
+      const proposedInstallmentDate = new Date(proposedInstallmentDateStr)
+
+      const proposedIsAfterToday = isAfter(proposedInstallmentDate, today)
+      const proposedIsToday = isToday(proposedInstallmentDate)
+
+      const body: {
+        customer: string;
+        billingType: string;
+        dueDate: string;
+        value: string;
+        installmentCount: number;
+        installmentValue: string;
+      } = {
+        customer: clientId,
+        billingType: paymentType,
+        dueDate: '',
+        value,
+        installmentCount,
+        installmentValue
+      }
+
+      if (proposedIsAfterToday || proposedIsToday) {
+        body.dueDate = format(proposedInstallmentDate, 'yyyy-MM-dd')
+        const payment = await asaasAPI.post('/api/v3/payments', body)
+        return payment
+      } else {
+        installmentDate = format(addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd')
+        body.dueDate = installmentDate
+        const payment = await asaasAPI.post('/api/v3/payments', body)
+        return payment
+      }
     } catch (err) {
       return err
     }
