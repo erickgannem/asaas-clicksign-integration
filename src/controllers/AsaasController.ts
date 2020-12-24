@@ -48,7 +48,8 @@ export default class AsaasController {
           province: data.bairro,
           postalCode: data.cep
         }
-        const newClient = await asaasAPI.post('/api/v3/customers', body)
+        const asaasResponse = await asaasAPI.post('/api/v3/customers', body)
+        const { data: newClient } = asaasResponse
         req.asaasClient = newClient
         next()
       } catch (err) {
@@ -58,8 +59,9 @@ export default class AsaasController {
   }
 
   static async createCharge (req: Request, res: Response, next:NextFunction) {
+    debugger
     try {
-      const { id: clientId } = req.asaasClient.data
+      const { id: clientId } = req.asaasClient
       const { data: documentData } = req.clicksignDocumentData.document.template
 
       const installmentCount = documentData.parcelas
