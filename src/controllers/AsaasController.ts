@@ -70,19 +70,21 @@ export default class AsaasController {
 
       let installmentDate
       const today = new Date()
-      const proposedInstallmentDateStr = `${today.getMonth() + 1}-${installmentDay}-${today.getFullYear()}`
+      const proposedInstallmentDateStr: string = `${today.getMonth() + 1}-${installmentDay}-${today.getFullYear()}`
       const proposedInstallmentDate = new Date(proposedInstallmentDateStr)
       const proposedIsAfterToday = isAfter(proposedInstallmentDate, today)
       const proposedIsToday = isToday(proposedInstallmentDate)
 
-      const body: {
+      interface ChargeBody {
         customer: string;
         billingType: string;
         dueDate: string;
         value: string;
         installmentCount: string;
         installmentValue: string;
-      } = {
+      }
+
+      const body: ChargeBody = {
         customer: clientId,
         billingType: paymentType,
         dueDate: '',
