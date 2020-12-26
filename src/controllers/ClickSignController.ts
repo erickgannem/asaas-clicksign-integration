@@ -8,7 +8,7 @@ export default class ClickSignController {
     const { HMAC_SECRET_KEY } = process.env
 
     try {
-      if (!HMAC_SECRET_KEY) return res.status(200).end(() => { process.stdout.write('HMAC Secret Key does not exist!') })
+      if (!HMAC_SECRET_KEY) return res.status(500).end(() => { process.stdout.write('\n **HMAC Secret Key does not exist!**') })
 
       const hmac = crypto.createHmac('sha256', HMAC_SECRET_KEY)
       hmac.update(rawBody)
@@ -16,7 +16,7 @@ export default class ClickSignController {
 
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
-      if (!sha256matches) return res.status(200).end(() => { process.stdout.write('SHA256 does not match!') })
+      if (!sha256matches) return res.status(400).end(() => { process.stdout.write('\n **SHA256 does not match!**') })
 
       const triggeringData = body
       const { document } = triggeringData
@@ -27,13 +27,14 @@ export default class ClickSignController {
 
       req.clicksignDocumentKey = triggeringData.document.key
 
-      res.sendStatus(200).end(() => next())
+      res.status(200).end(() => next())
     } catch (err) {
-      return res.sendStatus(200).end(() => next(err))
+      return res.status(500).end(() => next(err))
     }
   }
 
   static async getDocument (req: Request, res: Response, next: NextFunction) {
+    process.stdout.write('\nClosed document')
     const { clicksignDocumentKey } = req
     try {
       const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_API_TOKEN}`)
