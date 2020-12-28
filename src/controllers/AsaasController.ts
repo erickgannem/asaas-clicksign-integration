@@ -104,7 +104,7 @@ export default class AsaasController {
         installmentDate = format(addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd')
         body.dueDate = installmentDate
         const payment = await asaasAPI.post('/api/v3/payments', body)
-        process.stdout.write(`\n>> Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
+        process.stdout.write(`\n>> [Asaas Controller] Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
 
         return payment
       }
