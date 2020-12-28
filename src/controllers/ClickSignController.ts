@@ -7,13 +7,13 @@ export default class ClickSignController {
   static async listenWebhook (req: Request, res: Response, next: NextFunction) {
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
+    // eslint-disable-next-line no-debugger
     debugger
 
     try {
       if (!HMAC_SECRET_KEY) {
-        return res.status(500).end(() => {
-          process.stdout.write('\n>> HMAC Secret Key does not exist! \n')
-        })
+        process.stdout.write('\n>> HMAC Secret Key does not exist! \n')
+        return res.status(500).end()
       }
 
       const hmac = crypto.createHmac('sha256', HMAC_SECRET_KEY)
@@ -23,9 +23,8 @@ export default class ClickSignController {
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
       if (!sha256matches) {
-        return res.status(400).end(() => {
-          process.stdout.write('\n>>SHA256 does not match!\n')
-        })
+        process.stdout.write('\n>>SHA256 does not match!\n')
+        return res.status(400).end()
       }
 
       const data = body
@@ -52,7 +51,7 @@ export default class ClickSignController {
         await cache.set(documentKey, '0')
         // Return 200 and process the payment
         res.status(200).end()
-        next()
+        return next()
       } else {
         // If it's cached. Then return 200
         // and exit because it was already payed
@@ -66,12 +65,13 @@ export default class ClickSignController {
   static async getDocument (req: Request, res: Response, next: NextFunction) {
     const { clicksignDocumentKey } = req
     process.stdout.write(`\n>> Closed document: ${clicksignDocumentKey} being processed`)
+
     try {
       const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_API_TOKEN}`)
       const { data } = documentRequest
       req.clicksignDocumentData = data
 
-      next()
+      return next()
     } catch (err) {
       return next(err)
     }

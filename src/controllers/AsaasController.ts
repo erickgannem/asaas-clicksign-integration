@@ -16,7 +16,7 @@ export default class AsaasController {
 
       req.asaasClient = asaasClient
 
-      next()
+      return next()
     } catch (err) {
       return next(err)
     }
@@ -27,7 +27,7 @@ export default class AsaasController {
     const clientExists = !!Object.keys(asaasClient).length
 
     if (clientExists) {
-      next()
+      return next()
     } else {
       try {
         const { data } = clicksignDocumentData.document.template
@@ -51,7 +51,8 @@ export default class AsaasController {
         const asaasResponse = await asaasAPI.post('/api/v3/customers', body)
         const { data: newClient } = asaasResponse
         req.asaasClient = newClient
-        next()
+
+        return next()
       } catch (err) {
         return next(err)
       }
@@ -103,6 +104,8 @@ export default class AsaasController {
         installmentDate = format(addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd')
         body.dueDate = installmentDate
         const payment = await asaasAPI.post('/api/v3/payments', body)
+        process.stdout.write(`\n>> Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
+
         return payment
       }
     } catch (err) {
