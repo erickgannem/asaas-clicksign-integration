@@ -1,14 +1,20 @@
 import clickSignAPI from '../helpers/clickSignApi'
 import { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
+import cache from '../cache'
 
 export default class ClickSignController {
   static async listenWebhook (req: Request, res: Response, next: NextFunction) {
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
+    debugger
 
     try {
-      if (!HMAC_SECRET_KEY) return res.status(500).end(() => { process.stdout.write('\n **HMAC Secret Key does not exist!**') })
+      if (!HMAC_SECRET_KEY) {
+        return res.status(500).end(() => {
+          process.stdout.write('\n>> HMAC Secret Key does not exist! \n')
+        })
+      }
 
       const hmac = crypto.createHmac('sha256', HMAC_SECRET_KEY)
       hmac.update(rawBody)
@@ -16,26 +22,50 @@ export default class ClickSignController {
 
       const sha256matches = (`sha256=${hash}` === headers['content-hmac'])
 
-      if (!sha256matches) return res.status(400).end(() => { process.stdout.write('\n **SHA256 does not match!**') })
+      if (!sha256matches) {
+        return res.status(400).end(() => {
+          process.stdout.write('\n>>SHA256 does not match!\n')
+        })
+      }
 
-      const triggeringData = body
-      const { document } = triggeringData
+      const data = body
+      const { key: documentKey, status: documentStatus } = data.document
 
-      const documentIsClosed = (document.status === 'closed')
+      const documentIsClosed = (documentStatus === 'closed')
 
       if (!documentIsClosed) return res.status(200).end()
 
-      req.clicksignDocumentKey = triggeringData.document.key
+      req.clicksignDocumentKey = documentKey
 
-      res.status(200).end(() => next())
+      // Look for cached document
+      let documentIsCached
+      const redisGetResponse = await cache.get(documentKey)
+      if (redisGetResponse !== null) {
+        documentIsCached = true
+      } else {
+        documentIsCached = false
+      }
+
+      // If document is not cached
+      if (!documentIsCached) {
+        // Cache it
+        await cache.set(documentKey, '0')
+        // Return 200 and process the payment
+        res.status(200).end()
+        next()
+      } else {
+        // If it's cached. Then return 200
+        // and exit because it was already payed
+        return res.status(200).end()
+      }
     } catch (err) {
       return res.status(500).end(() => next(err))
     }
   }
 
   static async getDocument (req: Request, res: Response, next: NextFunction) {
-    process.stdout.write('\nClosed document')
     const { clicksignDocumentKey } = req
+    process.stdout.write(`\n>> Closed document: ${clicksignDocumentKey} being processed`)
     try {
       const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_API_TOKEN}`)
       const { data } = documentRequest
