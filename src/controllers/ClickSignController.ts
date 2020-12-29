@@ -26,31 +26,24 @@ export default class ClickSignController {
       }
 
       const data = body
-      const { key: documentKey, status: documentStatus } = data.document
+      const { key: documentKey } = data.document
 
-      const documentIsClosed = (documentStatus === 'closed')
-
-      if (!documentIsClosed) {
-        res.status(200).end()
-        return
+      if (headers.event !== 'auto_close') {
+        return res.status(200).end()
       }
 
       req.clicksignDocumentKey = documentKey
 
-      let documentIsCached
       const redisGetResponse = await cache.get(documentKey)
-      if (redisGetResponse !== null) {
-        documentIsCached = true
-      } else {
-        documentIsCached = false
-      }
 
-      if (!documentIsCached) {
-        await cache.set(documentKey, '0')
-        return next()
+      const documentIsCached = (redisGetResponse !== null)
+
+      if (documentIsCached) {
+        return res.status(200).end()
       } else {
+        await cache.set(documentKey, '0')
         res.status(200).end()
-        return
+        return next()
       }
     } catch (err) {
       return next(err)

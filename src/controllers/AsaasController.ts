@@ -104,6 +104,7 @@ export default class AsaasController {
 
       if (proposedIsAfterToday || proposedIsToday) {
         body.dueDate = format(proposedInstallmentDate, 'yyyy-MM-dd')
+
         await asaasAPI.post('/api/v3/payments', body)
 
         return res.status(200).end()

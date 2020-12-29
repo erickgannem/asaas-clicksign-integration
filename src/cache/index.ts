@@ -1,8 +1,9 @@
 import Redis from 'ioredis'
 
-const { REDIS_URL } = process.env
+// const { REDIS_URL } = process.env
 
-const cache = new Redis(REDIS_URL)
+// const cache = new Redis(REDIS_URL)
+const cache = new Redis()
 
 cache.on('connect', function () {
   process.stdout.write('\n>> [REDIS] Client is CONNECTED\n')

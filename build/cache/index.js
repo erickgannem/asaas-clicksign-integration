@@ -4,8 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ioredis_1 = __importDefault(require("ioredis"));
-var REDIS_URL = process.env.REDIS_URL;
-var cache = new ioredis_1.default(REDIS_URL);
+// const { REDIS_URL } = process.env
+// const cache = new Redis(REDIS_URL)
+var cache = new ioredis_1.default();
 cache.on('connect', function () {
     process.stdout.write('\n>> [REDIS] Client is CONNECTED\n');
 });
