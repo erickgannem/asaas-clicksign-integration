@@ -102,7 +102,7 @@ var ClickSignController = /** @class */ (function () {
                     case 5: return [3 /*break*/, 7];
                     case 6:
                         err_1 = _b.sent();
-                        return [2 /*return*/, res.status(500).end(function () { return next(err_1); })];
+                        return [2 /*return*/, next(err_1)];
                     case 7: return [2 /*return*/];
                 }
             });

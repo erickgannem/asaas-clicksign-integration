@@ -8,7 +8,8 @@ var ClickSignController_1 = __importDefault(require("./controllers/ClickSignCont
 var AsaasController_1 = __importDefault(require("./controllers/AsaasController"));
 var routes = express_1.Router();
 var fetchClients = AsaasController_1.default.fetchClients, checkIfClientExists = AsaasController_1.default.checkIfClientExists, createCharge = AsaasController_1.default.createCharge;
-var listenWebhook = ClickSignController_1.default.listenWebhook, getDocument = ClickSignController_1.default.getDocument;
+var listenWebhook = ClickSignController_1.default.listenWebhook, getDocument = ClickSignController_1.default.getDocument, createDocument = ClickSignController_1.default.createDocument;
 routes.post('/', listenWebhook, getDocument, fetchClients, checkIfClientExists, createCharge);
+routes.post('/documents', createDocument);
 routes.get('/status', function (_, res) { return res.status(200).json({ message: 'Server is up and running' }); });
 exports.default = routes;

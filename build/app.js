@@ -19,12 +19,12 @@ var App = /** @class */ (function () {
     }
     App.prototype.middlewares = function () {
         this.server.use(helmet_1.default());
+        this.server.use(cors_1.default());
         this.server.use(express_1.default.json({
             verify: function (req, res, buf) {
                 req.rawBody = buf;
             }
         }));
-        this.server.use(cors_1.default());
     };
     App.prototype.routes = function () {
         this.server.use(routes_1.default);
