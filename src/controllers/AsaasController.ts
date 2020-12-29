@@ -64,11 +64,17 @@ export default class AsaasController {
       const { id: clientId } = req.asaasClient
       const { data: documentData } = req.clicksignDocumentData.document.template
 
+      let installmentCount: string
       const value: string = documentData['valor negociado']
       const installmentValue: string = documentData['valor parcela']
       const installmentDay: string = documentData['vencimento da parcela']
       const paymentType: string = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD'
-      const installmentCount: string = Number(documentData.parcelas) > 12 ? '12' : documentData.parcelas
+
+      if (paymentType === 'CREDIT_CARD') {
+        installmentCount = Number(documentData.parcelas) > 12 ? '12' : documentData.parcelas
+      } else {
+        installmentCount = documentData.parcelas
+      }
 
       let installmentDate
 
