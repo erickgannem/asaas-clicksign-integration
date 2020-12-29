@@ -56,7 +56,7 @@ export default class ClickSignController {
         return res.status(200).end()
       }
     } catch (err) {
-      return res.status(500).end(() => next(err))
+      return next(err)
     }
   }
 

@@ -19,12 +19,12 @@ class App {
 
   middlewares () {
     this.server.use(helmet())
+    this.server.use(cors())
     this.server.use(express.json({
       verify: (req, res, buf) => {
         req.rawBody = buf
       }
     }))
-    this.server.use(cors())
   }
 
   routes () {
