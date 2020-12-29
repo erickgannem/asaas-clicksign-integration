@@ -47,7 +47,6 @@ export default class ClickSignController {
 
       if (!documentIsCached) {
         await cache.set(documentKey, '0')
-        res.status(200).end()
         return next()
       } else {
         res.status(200).end()

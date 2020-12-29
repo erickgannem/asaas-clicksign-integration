@@ -104,15 +104,16 @@ export default class AsaasController {
 
       if (proposedIsAfterToday || proposedIsToday) {
         body.dueDate = format(proposedInstallmentDate, 'yyyy-MM-dd')
-        const payment = await asaasAPI.post('/api/v3/payments', body)
-        return payment
+        await asaasAPI.post('/api/v3/payments', body)
+
+        return res.status(200).end()
       } else {
         installmentDate = format(addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd')
         body.dueDate = installmentDate
-        const payment = await asaasAPI.post('/api/v3/payments', body)
+        await asaasAPI.post('/api/v3/payments', body)
         process.stdout.write(`\n>> [Asaas Controller] Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
 
-        return payment
+        return res.status(200).end()
       }
     } catch (err) {
       return next(err)
