@@ -11,10 +11,12 @@ const {
 } = AsaasController
 const {
   listenWebhook,
-  getDocument
+  getDocument,
+  createDocument
 } = ClickSignController
 
 routes.post('/', listenWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
+routes.post('/documents', createDocument)
 
 routes.get('/status', (_, res) => res.status(200).json(
   { message: 'Server is up and running' })
