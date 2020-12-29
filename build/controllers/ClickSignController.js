@@ -85,20 +85,12 @@ var ClickSignController = /** @class */ (function () {
                             documentIsCached = false;
                         }
                         if (!!documentIsCached) return [3 /*break*/, 4];
-                        // Cache it
-                        return [4 /*yield*/, cache_1.default.set(documentKey, '0')
-                            // Return 200 and process the payment
-                        ];
+                        return [4 /*yield*/, cache_1.default.set(documentKey, '0')];
                     case 3:
-                        // Cache it
                         _b.sent();
-                        // Return 200 and process the payment
                         res.status(200).end();
                         return [2 /*return*/, next()];
-                    case 4: 
-                    // If it's cached. Then return 200
-                    // and exit because it was already payed
-                    return [2 /*return*/, res.status(200).end()];
+                    case 4: return [2 /*return*/, res.status(200).end()];
                     case 5: return [3 /*break*/, 7];
                     case 6:
                         err_1 = _b.sent();

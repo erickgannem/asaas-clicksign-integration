@@ -34,7 +34,6 @@ export default class ClickSignController {
 
       req.clicksignDocumentKey = documentKey
 
-      // Look for cached document
       let documentIsCached
       const redisGetResponse = await cache.get(documentKey)
       if (redisGetResponse !== null) {
@@ -43,16 +42,11 @@ export default class ClickSignController {
         documentIsCached = false
       }
 
-      // If document is not cached
       if (!documentIsCached) {
-        // Cache it
         await cache.set(documentKey, '0')
-        // Return 200 and process the payment
         res.status(200).end()
         return next()
       } else {
-        // If it's cached. Then return 200
-        // and exit because it was already payed
         return res.status(200).end()
       }
     } catch (err) {
