@@ -90,7 +90,6 @@ var ClickSignController = /** @class */ (function () {
                         return [4 /*yield*/, cache_1.default.set(documentKey, '0')];
                     case 3:
                         _b.sent();
-                        res.status(200).end();
                         return [2 /*return*/, next()];
                     case 4:
                         res.status(200).end();

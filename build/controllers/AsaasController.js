@@ -117,7 +117,7 @@ var AsaasController = /** @class */ (function () {
     };
     AsaasController.createCharge = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var clientId, documentData, installmentCount, value, installmentValue, installmentDay, paymentType, installmentDate, today, proposedInstallmentDateStr, proposedInstallmentDate, proposedIsAfterToday, proposedIsToday, body, payment, payment, err_3;
+            var clientId, documentData, installmentCount, value, installmentValue, installmentDay, paymentType, installmentDate, today, proposedInstallmentDateStr, proposedInstallmentDate, proposedIsAfterToday, proposedIsToday, body, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -153,16 +153,16 @@ var AsaasController = /** @class */ (function () {
                         body.dueDate = date_fns_1.format(proposedInstallmentDate, 'yyyy-MM-dd');
                         return [4 /*yield*/, asaasApi_1.default.post('/api/v3/payments', body)];
                     case 1:
-                        payment = _a.sent();
-                        return [2 /*return*/, payment];
+                        _a.sent();
+                        return [2 /*return*/, res.status(200).end()];
                     case 2:
                         installmentDate = date_fns_1.format(date_fns_1.addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd');
                         body.dueDate = installmentDate;
                         return [4 /*yield*/, asaasApi_1.default.post('/api/v3/payments', body)];
                     case 3:
-                        payment = _a.sent();
+                        _a.sent();
                         process.stdout.write("\n>> [Asaas Controller] Payment for document: " + req.clicksignDocumentKey + " was succesfully generated");
-                        return [2 /*return*/, payment];
+                        return [2 /*return*/, res.status(200).end()];
                     case 4: return [3 /*break*/, 6];
                     case 5:
                         err_3 = _a.sent();
