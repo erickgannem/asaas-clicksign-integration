@@ -115,7 +115,7 @@ export default class AsaasController {
         return payment
       }
     } catch (err) {
-      return err
+      return next(err)
     }
   }
 }
