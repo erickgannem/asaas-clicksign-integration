@@ -6,7 +6,11 @@ interface HttpError {
 }
 
 const errorMiddleware = (err: HttpError, req: Request, res: Response, next: NextFunction) => {
-  return process.stdout.write(`\n>> [Error Handler] ${err.message} \n`)
+  process.stdout.write(`\n>> [Error Handler] ${err.message} \n`)
+
+  return res.status(500).json({
+    errorMessage: err.message
+  })
 }
 
 export default errorMiddleware

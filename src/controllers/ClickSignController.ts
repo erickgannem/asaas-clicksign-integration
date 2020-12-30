@@ -31,20 +31,20 @@ export default class ClickSignController {
       if (headers.event !== 'auto_close') {
         return res.status(200).end()
       }
-
       req.clicksignDocumentKey = documentKey
 
       const redisGetResponse = await cache.get(documentKey)
 
       const documentIsCached = (redisGetResponse !== null)
 
-      if (documentIsCached) {
-        return res.status(200).end()
-      } else {
-        await cache.set(documentKey, '0')
-        res.status(200).end()
-        return next()
-      }
+      setTimeout(async function () {
+        if (documentIsCached) {
+          return res.status(200).end()
+        } else {
+          await cache.set(documentKey, '0')
+          return next()
+        }
+      }, 0)
     } catch (err) {
       return next(err)
     }

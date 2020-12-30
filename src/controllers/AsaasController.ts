@@ -2,6 +2,7 @@ import asaasAPI from '../helpers/asaasApi'
 import { Request, Response, NextFunction } from 'express'
 import removeCPFChars from '../helpers/removeCPFchars'
 import { addMonths, isAfter, isToday, format } from 'date-fns'
+import Charge from '../interfaces/Charge'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -64,17 +65,11 @@ export default class AsaasController {
       const { id: clientId } = req.asaasClient
       const { data: documentData } = req.clicksignDocumentData.document.template
 
-      let installmentCount: string
       const value: string = documentData['valor negociado']
       const installmentValue: string = documentData['valor parcela']
       const installmentDay: string = documentData['vencimento da parcela']
       const paymentType: string = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD'
-
-      if (paymentType === 'CREDIT_CARD') {
-        installmentCount = Number(documentData.parcelas) > 12 ? '12' : documentData.parcelas
-      } else {
-        installmentCount = documentData.parcelas
-      }
+      const installmentCount = documentData.parcelas
 
       let installmentDate
 
@@ -84,16 +79,7 @@ export default class AsaasController {
       const proposedIsAfterToday = isAfter(proposedInstallmentDate, today)
       const proposedIsToday = isToday(proposedInstallmentDate)
 
-      interface ChargeBody {
-        customer: string;
-        billingType: string;
-        dueDate: string;
-        value: string;
-        installmentCount: string;
-        installmentValue: string;
-      }
-
-      const body: ChargeBody = {
+      const body: Charge = {
         customer: clientId,
         billingType: paymentType,
         dueDate: '',
@@ -107,17 +93,22 @@ export default class AsaasController {
 
         await asaasAPI.post('/api/v3/payments', body)
 
+        process.stdout.write(`\n>> [Asaas Controller] Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
+
         return res.status(200).end()
       } else {
         installmentDate = format(addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd')
         body.dueDate = installmentDate
         await asaasAPI.post('/api/v3/payments', body)
+
         process.stdout.write(`\n>> [Asaas Controller] Payment for document: ${req.clicksignDocumentKey} was succesfully generated`)
 
         return res.status(200).end()
       }
     } catch (err) {
-      return next(err)
+      return next({
+        message: err.response.data.errors[0].description
+      })
     }
   }
 }

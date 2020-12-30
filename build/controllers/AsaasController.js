@@ -117,24 +117,18 @@ var AsaasController = /** @class */ (function () {
     };
     AsaasController.createCharge = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var clientId, documentData, installmentCount, value, installmentValue, installmentDay, paymentType, installmentDate, today, proposedInstallmentDateStr, proposedInstallmentDate, proposedIsAfterToday, proposedIsToday, body, err_3;
+            var clientId, documentData, value, installmentValue, installmentDay, paymentType, installmentCount, installmentDate, today, proposedInstallmentDateStr, proposedInstallmentDate, proposedIsAfterToday, proposedIsToday, body, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 5, , 6]);
                         clientId = req.asaasClient.id;
                         documentData = req.clicksignDocumentData.document.template.data;
-                        installmentCount = void 0;
                         value = documentData['valor negociado'];
                         installmentValue = documentData['valor parcela'];
                         installmentDay = documentData['vencimento da parcela'];
                         paymentType = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD';
-                        if (paymentType === 'CREDIT_CARD') {
-                            installmentCount = Number(documentData.parcelas) > 12 ? '12' : documentData.parcelas;
-                        }
-                        else {
-                            installmentCount = documentData.parcelas;
-                        }
+                        installmentCount = documentData.parcelas;
                         installmentDate = void 0;
                         today = new Date();
                         proposedInstallmentDateStr = today.getMonth() + 1 + "-" + installmentDay + "-" + today.getFullYear();
@@ -154,6 +148,7 @@ var AsaasController = /** @class */ (function () {
                         return [4 /*yield*/, asaasApi_1.default.post('/api/v3/payments', body)];
                     case 1:
                         _a.sent();
+                        process.stdout.write("\n>> [Asaas Controller] Payment for document: " + req.clicksignDocumentKey + " was succesfully generated");
                         return [2 /*return*/, res.status(200).end()];
                     case 2:
                         installmentDate = date_fns_1.format(date_fns_1.addMonths(proposedInstallmentDate, 1), 'yyyy-MM-dd');
@@ -166,7 +161,9 @@ var AsaasController = /** @class */ (function () {
                     case 4: return [3 /*break*/, 6];
                     case 5:
                         err_3 = _a.sent();
-                        return [2 /*return*/, next(err_3)];
+                        return [2 /*return*/, next({
+                                message: err_3.response.data.errors[0].description
+                            })];
                     case 6: return [2 /*return*/];
                 }
             });

@@ -4,12 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
+var prefixUrl = (process.env.NODE_ENV === 'production') ? 'app' : 'sandbox';
 var clickSignAPI = axios_1.default.create({
-    baseURL: 'https://app.clicksign.com/',
+    baseURL: "https://" + prefixUrl + ".clicksign.com",
     headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Host: 'app.clicksign.com'
+        Host: prefixUrl + ".clicksign.com"
     }
 });
 exports.default = clickSignAPI;
