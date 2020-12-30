@@ -25,26 +25,25 @@ export default class ClickSignController {
         throw new Error('SHA256 does not match!')
       }
 
-      const data = body
-      const { key: documentKey } = data.document
+      const { event } = headers
+      const { key: documentKey } = body.document
 
-      if (headers.event !== 'auto_close') {
-        return res.status(200).end()
+      if (event === 'auto_close' || event === 'close') {
+        const redisGetResponse = await cache.get(documentKey)
+        const documentIsCached = (redisGetResponse !== null)
+
+        setTimeout(async function () {
+          if (documentIsCached) {
+            return res.status(200).end()
+          } else {
+            await cache.set(documentKey, 0)
+            req.clicksignDocumentKey = documentKey
+
+            return next()
+          }
+        }, 0)
       }
-      req.clicksignDocumentKey = documentKey
-
-      const redisGetResponse = await cache.get(documentKey)
-
-      const documentIsCached = (redisGetResponse !== null)
-
-      setTimeout(async function () {
-        if (documentIsCached) {
-          return res.status(200).end()
-        } else {
-          await cache.set(documentKey, '0')
-          return next()
-        }
-      }, 0)
+      return res.status(200).end()
     } catch (err) {
       return next(err)
     }

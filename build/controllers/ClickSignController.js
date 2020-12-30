@@ -47,7 +47,7 @@ var ClickSignController = /** @class */ (function () {
     }
     ClickSignController.listenWebhook = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var headers, rawBody, body, HMAC_SECRET_KEY, hmac, hash, sha256matches, data, documentKey_1, redisGetResponse, documentIsCached_1, err_1;
+            var headers, rawBody, body, HMAC_SECRET_KEY, hmac, hash, sha256matches, event_1, documentKey_1, redisGetResponse, documentIsCached_1, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -55,7 +55,7 @@ var ClickSignController = /** @class */ (function () {
                         HMAC_SECRET_KEY = process.env.HMAC_SECRET_KEY;
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([1, 4, , 5]);
                         if (!HMAC_SECRET_KEY) {
                             process.stdout.write('\n>> [ClickSign Controller] HMAC Secret Key does not exist! \n');
                             throw new Error('HMAC Secret Key does not exist!');
@@ -68,12 +68,9 @@ var ClickSignController = /** @class */ (function () {
                             process.stdout.write('\n>> [ClickSign Controller] SHA256 does not match!\n');
                             throw new Error('SHA256 does not match!');
                         }
-                        data = body;
-                        documentKey_1 = data.document.key;
-                        if (headers.event !== 'auto_close') {
-                            return [2 /*return*/, res.status(200).end()];
-                        }
-                        req.clicksignDocumentKey = documentKey_1;
+                        event_1 = headers.event;
+                        documentKey_1 = body.document.key;
+                        if (!(event_1 === 'auto_close' || event_1 === 'close')) return [3 /*break*/, 3];
                         return [4 /*yield*/, cache_1.default.get(documentKey_1)];
                     case 2:
                         redisGetResponse = _a.sent();
@@ -85,19 +82,21 @@ var ClickSignController = /** @class */ (function () {
                                         case 0:
                                             if (!documentIsCached_1) return [3 /*break*/, 1];
                                             return [2 /*return*/, res.status(200).end()];
-                                        case 1: return [4 /*yield*/, cache_1.default.set(documentKey_1, '0')];
+                                        case 1: return [4 /*yield*/, cache_1.default.set(documentKey_1, 0)];
                                         case 2:
                                             _a.sent();
+                                            req.clicksignDocumentKey = documentKey_1;
                                             return [2 /*return*/, next()];
                                     }
                                 });
                             });
                         }, 0);
-                        return [3 /*break*/, 4];
-                    case 3:
+                        _a.label = 3;
+                    case 3: return [2 /*return*/, res.status(200).end()];
+                    case 4:
                         err_1 = _a.sent();
                         return [2 /*return*/, next(err_1)];
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
