@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express'
 import removeCPFChars from '../helpers/removeCPFchars'
 import { addMonths, isAfter, isToday, format } from 'date-fns'
 import Charge from '../interfaces/Charge'
+import checkPaymentType from '../helpers/checkPaymentType'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -68,7 +69,7 @@ export default class AsaasController {
       const value: string = documentData['valor negociado']
       const installmentValue: string = documentData['valor parcela']
       const installmentDay: string = documentData['vencimento da parcela']
-      const paymentType: string = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD'
+      const paymentType = checkPaymentType(documentData['forma de pagamento'])
       const installmentCount = documentData.parcelas
 
       let installmentDate

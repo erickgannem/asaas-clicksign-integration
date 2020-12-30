@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var asaasApi_1 = __importDefault(require("../helpers/asaasApi"));
 var removeCPFchars_1 = __importDefault(require("../helpers/removeCPFchars"));
 var date_fns_1 = require("date-fns");
+var checkPaymentType_1 = __importDefault(require("../helpers/checkPaymentType"));
 var AsaasController = /** @class */ (function () {
     function AsaasController() {
     }
@@ -127,7 +128,7 @@ var AsaasController = /** @class */ (function () {
                         value = documentData['valor negociado'];
                         installmentValue = documentData['valor parcela'];
                         installmentDay = documentData['vencimento da parcela'];
-                        paymentType = (~documentData['forma de pagamento'].indexOf('Boleto')) ? 'BOLETO' : 'CREDIT_CARD';
+                        paymentType = checkPaymentType_1.default(documentData['forma de pagamento']);
                         installmentCount = documentData.parcelas;
                         installmentDate = void 0;
                         today = new Date();
