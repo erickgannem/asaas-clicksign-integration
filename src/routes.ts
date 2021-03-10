@@ -16,6 +16,8 @@ const {
 } = ClickSignController
 
 routes.post('/', listenWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
+routes.post('/invoices', () => {})
+
 routes.post('/documents', createDocument)
 
 routes.get('/status', (_, res) => res.status(200).json(
