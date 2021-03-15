@@ -4,6 +4,7 @@ import removeCPFChars from '../helpers/removeCPFchars'
 import { addMonths, isAfter, isToday, format } from 'date-fns'
 import Charge from '../interfaces/Charge'
 import checkPaymentType from '../helpers/checkPaymentType'
+import db from '../database/connection'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -111,5 +112,50 @@ export default class AsaasController {
         message: err.response.data.errors[0].description
       })
     }
+  }
+
+  static async createInvoice (req: Request, res: Response, next: NextFunction) {
+    const body = {
+      event: 'PAYMENT_RECEIVED',
+      payment: {
+        object: 'payment',
+        id: 'pay_080225913252',
+        dateCreated: '2017-03-10',
+        customer: 'cus_G7Dvo4iphUNk',
+        subscription: 'sub_VXJBYgP2u0eO', // somente quando pertencer a uma assinatura
+        installment: 'ins_000000001031', // somente quando pertencer a um parcelamento
+        dueDate: '2017-03-15',
+        value: 100.00,
+        netValue: 94.51,
+        billingType: 'CREDIT_CARD',
+        status: 'RECEIVED',
+        description: 'Pedido 056984',
+        externalReference: '056984',
+        confirmedDate: '2017-03-15',
+        originalValue: null,
+        interestValue: null,
+        originalDueDate: '2017-06-10',
+        paymentDate: null,
+        clientPaymentDate: null,
+        invoiceUrl: 'https://www.asaas.com/i/080225913252',
+        bankSlipUrl: null,
+        invoiceNumber: '00005101',
+        deleted: false,
+        creditCard: {
+          creditCardNumber: '8829',
+          creditCardBrand: 'MASTERCARD',
+          creditCardToken: 'a75a1d98-c52d-4a6b-a413-71e00b193c99'
+        }
+      }
+    }
+
+    const { event } = body
+    const PAYMENT_RECEIVED = 'PAYMENT_RECEIVED'
+
+    if (event === PAYMENT_RECEIVED) {
+      console.log(event)
+    }
+
+    return res.status(200).end()
   }
 }

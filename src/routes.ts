@@ -7,21 +7,22 @@ const routes = Router()
 const {
   fetchClients,
   checkIfClientExists,
-  createCharge
+  createCharge,
+  createInvoice
 } = AsaasController
 const {
   listenWebhook,
-  getDocument,
-  createDocument
+  getDocument
+  // createDocument
 } = ClickSignController
 
 routes.post('/', listenWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
-routes.post('/invoices', () => {})
-
-routes.post('/documents', createDocument)
+routes.get('/invoices', createInvoice)
 
 routes.get('/status', (_, res) => res.status(200).json(
   { message: 'Server is up and running' })
 )
+
+// routes.post('/documents', createDocument)
 
 export default routes
