@@ -122,10 +122,11 @@ export default class AsaasController {
 
     try {
       if (event === PAYMENT_RECEIVED) {
-        const payment = await db.Payment.create(body)
+        const payment = await db.Payment.create({ paymentData: body })
         return res.status(200).json({ message: 'payment received' + payment })
       }
-      return
+      process.stdout.write('\n>> [Asaas Controller] Skipping payment data\n')
+      return res.status(200).json({ message: 'Skipping payment data' })
     } catch (err) {
       return next(err)
     }
