@@ -153,9 +153,11 @@ export default class AsaasController {
     const PAYMENT_RECEIVED = 'PAYMENT_RECEIVED'
 
     if (event === PAYMENT_RECEIVED) {
-      console.log(event)
+      // test
+      const payment = await db.Payment.create({ paymentData: body })
+      console.log(payment)
     }
 
-    return res.status(200).end()
+    return res.status(200).json({ message: '/invoices hitted succesfully' })
   }
 }

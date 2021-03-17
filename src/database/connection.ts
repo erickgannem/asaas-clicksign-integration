@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+import Payment from './models/Payment'
+
 const { DB_NAME, DB_USERNAME, DB_PASSWORD } = process.env
 
 const connection = mongoose.connect(
@@ -9,6 +11,6 @@ const connection = mongoose.connect(
 
 console.log(connection)
 
-const db = {}
+const db = { Payment }
 
 export default db
