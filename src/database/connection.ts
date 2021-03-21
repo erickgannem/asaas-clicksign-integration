@@ -9,7 +9,9 @@ const connection = mongoose.connect(
   { useNewUrlParser: true, useUnifiedTopology: true }
 )
 
-console.log(connection)
+if (connection) {
+  process.stdout.write('>> [MongoDB] Client is READY\n')
+}
 
 const db = { Payment }
 
