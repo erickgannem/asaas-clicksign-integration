@@ -1,9 +1,10 @@
-import asaasAPI from '../helpers/asaasApi'
 import { Request, Response, NextFunction } from 'express'
-import removeCPFChars from '../helpers/removeCPFchars'
 import { addMonths, isAfter, isToday, format } from 'date-fns'
-import Charge from '../interfaces/Charge'
+
+import asaasAPI from '../helpers/asaasApi'
+import removeCPFChars from '../helpers/removeCPFchars'
 import checkPaymentType from '../helpers/checkPaymentType'
+import Charge from '../interfaces/Charge'
 import db from '../database/connection'
 
 export default class AsaasController {
@@ -114,7 +115,7 @@ export default class AsaasController {
     }
   }
 
-  static async createInvoice (req: Request, res: Response, next: NextFunction) {
+  static async savePayment (req: Request, res: Response, next: NextFunction) {
     const { body } = req
     const { event } = body
 
@@ -125,8 +126,28 @@ export default class AsaasController {
         const payment = await db.Payment.create({ paymentData: body })
         return res.status(200).json({ message: 'Payment received:' + payment })
       }
-      process.stdout.write('\n>> [Asaas Controller] Skipping payment data\n')
-      return res.status(200).json({ message: 'Skipping payment data' })
+      process.stdout.write('\n>> [Asaas Controller] Payment still not confirmed. Skipping\n')
+      return res.status(200).json({ message: 'Payment still not confirmed. Skipping' })
+    } catch (err) {
+      return next(err)
+    }
+  }
+
+  static async filterPayments (req: Request, res: Response, next: NextFunction) {
+    try {
+      const paymentsArray = await db.Payment.find()
+
+      paymentsArray.filter(paymentItem => {
+        const { paymentData } = paymentItem
+        const { payment } = paymentData
+        const { paymentDate, confirmedDate } = payment
+
+        const checkDate = paymentDate || confirmedDate
+
+        // WIP
+      })
+
+      return res.status(200).end()
     } catch (err) {
       return next(err)
     }

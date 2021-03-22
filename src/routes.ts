@@ -8,7 +8,8 @@ const {
   fetchClients,
   checkIfClientExists,
   createCharge,
-  createInvoice
+  savePayment,
+  filterPayments
 } = AsaasController
 const {
   listenWebhook,
@@ -16,7 +17,9 @@ const {
 } = ClickSignController
 
 routes.post('/', listenWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
-routes.post('/invoices', createInvoice)
+
+routes.post('/invoices', savePayment)
+routes.get('/test', filterPayments)
 
 routes.get('/status', (_, res) => res.status(200).json(
   { message: 'Server is up and running' })
