@@ -1,11 +1,21 @@
 import { Request, Response, NextFunction } from 'express'
-import { addMonths, isAfter, isToday, format } from 'date-fns'
+import {
+  addMonths,
+  addDays,
+  isAfter,
+  isToday,
+  differenceInCalendarDays,
+  format,
+  parseISO
+} from 'date-fns'
 
 import asaasAPI from '../helpers/asaasApi'
 import removeCPFChars from '../helpers/removeCPFchars'
 import checkPaymentType from '../helpers/checkPaymentType'
 import Charge from '../interfaces/Charge'
 import db from '../database/connection'
+
+import PaymentDoc from '../database/interfaces/PaymentDoc'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -115,41 +125,86 @@ export default class AsaasController {
     }
   }
 
-  static async savePayment (req: Request, res: Response, next: NextFunction) {
+  static async paymentWebhook (req: Request, res: Response, next: NextFunction) {
     const { body } = req
     const { event } = body
 
     const PAYMENT_RECEIVED = 'PAYMENT_RECEIVED'
 
-    try {
-      if (event === PAYMENT_RECEIVED) {
-        const payment = await db.Payment.create({ paymentData: body })
-        return res.status(200).json({ message: 'Payment received:' + payment })
-      }
+    if (event === PAYMENT_RECEIVED) {
+      req.asaasPaymentInformation = body
+      return next()
+    } else {
       process.stdout.write('\n>> [Asaas Controller] Payment still not confirmed. Skipping\n')
       return res.status(200).json({ message: 'Payment still not confirmed. Skipping' })
+    }
+  }
+
+  static async savePaymentToDB (req: Request, res: Response, next: NextFunction) {
+    const INVOICING_DEADLINE_DAYS = 10
+    const { asaasPaymentInformation } = req
+    const { payment } = asaasPaymentInformation
+    const { paymentDate, confirmedDate } = payment
+
+    const effectivePaymentDay = paymentDate || confirmedDate
+
+    const scheduledInvoiceDate = addDays(parseISO(effectivePaymentDay), INVOICING_DEADLINE_DAYS)
+
+    try {
+      const payment = await db.Payment.create({
+        processed: false,
+        scheduledInvoiceDate: scheduledInvoiceDate,
+        paymentData: asaasPaymentInformation
+      })
+
+      return res.status(200).json({ message: 'Payment received:' + payment })
     } catch (err) {
       return next(err)
     }
   }
 
-  static async filterPayments (req: Request, res: Response, next: NextFunction) {
+  static async checkIfPaymentIsProcessed (req: Request, res: Response, next: NextFunction) {
     try {
-      const paymentsArray = await db.Payment.find()
-
-      paymentsArray.filter(paymentItem => {
-        const { paymentData } = paymentItem
-        const { payment } = paymentData
-        const { paymentDate, confirmedDate } = payment
-
-        const checkDate = paymentDate || confirmedDate
-
-        // WIP
+      const payments: PaymentDoc[] = await db.Payment.find()
+      const unprocessedPayments: PaymentDoc[] = payments.filter((paymentDocument: PaymentDoc) => {
+        const { processed } = paymentDocument
+        return !processed
       })
 
-      return res.status(200).end()
+      req.unprocessedPayments = unprocessedPayments
+      return next()
     } catch (err) {
       return next(err)
     }
+  }
+
+  static async checkPaymentDate (req: Request, res: Response, next: NextFunction) {
+    debugger
+    const { unprocessedPayments } = req
+    const TODAY = new Date()
+
+    const paymentsReadyToInvoice: PaymentDoc[] = unprocessedPayments.filter((paymentDocument: PaymentDoc) => {
+      const { scheduledInvoiceDate } = paymentDocument
+      return differenceInCalendarDays(scheduledInvoiceDate, TODAY) <= 0
+    })
+
+    req.paymentsReadyToInvoice = paymentsReadyToInvoice
+    return next()
+  }
+
+  static async createInvoice (req: Request, res: Response, next: NextFunction) {
+    // awaiting for implementation
+    return next()
+  }
+
+  static async updatePaymentsDB (req: Request, res: Response, next: NextFunction) {
+    const { paymentsReadyToInvoice } = req
+
+    paymentsReadyToInvoice.forEach(async (paymentDoc: PaymentDoc) => {
+      paymentDoc.processed = true
+      await paymentDoc.save()
+    })
+
+    return res.end()
   }
 }

@@ -9,6 +9,10 @@ const paymentSchema = new Schema({
     required: true,
     default: false
   },
+  scheduledInvoiceDate: {
+    type: Date,
+    required: true
+  },
   paymentData: {
     event: String,
     payment: {
@@ -35,23 +39,11 @@ const paymentSchema = new Schema({
       description: String,
       externalReference: String,
       confirmedDate: String,
-      originalValue: {
-        type: Schema.Types.Mixed,
-        default: null
-      },
-      interestValue: {
-        type: Schema.Types.Mixed,
-        default: null
-      },
+      originalValue: String,
+      interestValue: String,
       originalDueDate: String,
-      paymentDate: {
-        type: Schema.Types.Mixed,
-        default: null
-      },
-      clientPaymentDate: {
-        type: Schema.Types.Mixed,
-        default: null
-      },
+      paymentDate: String,
+      clientPaymentDate: String,
       invoiceUrl: String,
       bankSlipUrl: String,
       invoiceNumber: String,

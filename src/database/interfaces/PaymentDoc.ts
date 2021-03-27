@@ -1,11 +1,8 @@
 import mongoose from 'mongoose'
 
 export default interface PaymentDoc extends mongoose.Document {
-  processed: {
-    type: boolean,
-    required: boolean,
-    default: boolean
-  },
+  processed: boolean,
+  scheduledInvoiceDate: Date,
   paymentData: {
     event: string,
     payment: {
@@ -31,24 +28,12 @@ export default interface PaymentDoc extends mongoose.Document {
       status: string,
       description: string,
       externalReference: string,
-      confirmedDate: string,
-      originalValue: {
-        type: mongoose.Schema.Types.Mixed,
-        default: string
-      },
-      interestValue: {
-        type: mongoose.Schema.Types.Mixed,
-        default: string
-      },
-      originalDueDate: String,
-      paymentDate: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
-      },
-      clientPaymentDate: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
-      },
+      confirmedDate: string
+      originalValue: string,
+      interestValue: string,
+      originalDueDate: string,
+      paymentDate: string,
+      clientPaymentDate: string,
       invoiceUrl: string,
       bankSlipUrl: string,
       invoiceNumber: string,

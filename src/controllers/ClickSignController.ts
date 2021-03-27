@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import cache from '../cache'
 
 export default class ClickSignController {
-  static async listenWebhook (req: Request, res: Response, next: NextFunction) {
+  static async documentWebhook (req: Request, res: Response, next: NextFunction) {
     const { headers, rawBody, body } = req
     const { HMAC_SECRET_KEY } = process.env
 
