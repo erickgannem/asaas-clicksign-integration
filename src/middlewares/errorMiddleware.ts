@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express'
-
 interface HttpError {
   message: string,
   status: number

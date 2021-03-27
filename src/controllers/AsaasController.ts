@@ -193,17 +193,11 @@ export default class AsaasController {
 
   static async createInvoice (req: Request, res: Response, next: NextFunction) {
     // awaiting for implementation
-    return next()
-  }
-
-  static async updatePaymentsDB (req: Request, res: Response, next: NextFunction) {
     const { paymentsReadyToInvoice } = req
-
-    paymentsReadyToInvoice.forEach(async (paymentDoc: PaymentDoc) => {
-      paymentDoc.processed = true
-      await paymentDoc.save()
-    })
-
-    return res.end()
+    try {
+      return res.end()
+    } catch (err) {
+      return next(err)
+    }
   }
 }
