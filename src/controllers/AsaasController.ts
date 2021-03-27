@@ -179,7 +179,6 @@ export default class AsaasController {
   }
 
   static async checkPaymentDate (req: Request, res: Response, next: NextFunction) {
-    debugger
     const { unprocessedPayments } = req
     const TODAY = new Date()
 
