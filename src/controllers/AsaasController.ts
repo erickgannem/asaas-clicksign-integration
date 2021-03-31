@@ -152,9 +152,8 @@ export default class AsaasController {
 
     try {
       const payment = await db.Payment.create({
-        processed: false,
         scheduledInvoiceDate: scheduledInvoiceDate,
-        paymentData: asaasPaymentInformation
+        payload: asaasPaymentInformation
       })
 
       return res.status(200).json({ message: 'Payment received:' + payment })
@@ -192,8 +191,11 @@ export default class AsaasController {
   }
 
   static async createInvoice (req: Request, res: Response, next: NextFunction) {
-    // awaiting for implementation
+    const { paymentsReadyToInvoice } = req
     try {
+      for (const p of paymentsReadyToInvoice) {
+        await asaasAPI.post('/api/v3/invoices', {})
+      }
       return res.end()
     } catch (err) {
       return next(err)

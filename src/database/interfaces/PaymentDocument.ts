@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 export default interface PaymentDocument extends mongoose.Document {
   processed: boolean,
   scheduledInvoiceDate: Date,
-  paymentData: {
+  payload: {
     event: string,
     payment: {
       object: string,
@@ -14,11 +14,11 @@ export default interface PaymentDocument extends mongoose.Document {
       dateCreated: string,
       customer: string,
       subscription: {
-        type: string,
+        type: string | null,
         required: boolean
       },
       installment: {
-        type: string,
+        type: string | null,
         required: boolean
       },
       dueDate: string,
@@ -28,9 +28,9 @@ export default interface PaymentDocument extends mongoose.Document {
       status: string,
       description: string,
       externalReference: string,
-      confirmedDate: string
-      originalValue: string,
-      interestValue: string,
+      confirmedDate: string | null
+      originalValue: string | null,
+      interestValue: string | null,
       originalDueDate: string,
       paymentDate: string,
       clientPaymentDate: string,
@@ -42,7 +42,7 @@ export default interface PaymentDocument extends mongoose.Document {
         creditCardNumber: string,
         creditCardBrand: string,
         creditCardToken: string
-      }
+      } | null
     }
   }
 }

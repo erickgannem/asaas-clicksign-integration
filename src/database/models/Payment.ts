@@ -13,7 +13,7 @@ const paymentSchema = new Schema({
     type: Date,
     required: true
   },
-  paymentData: {
+  payload: {
     event: String,
     payment: {
       object: String,
@@ -24,11 +24,11 @@ const paymentSchema = new Schema({
       dateCreated: String,
       customer: String,
       subscription: {
-        type: String,
+        type: String || null,
         required: false
       },
       installment: {
-        type: String,
+        type: String || null,
         required: false
       },
       dueDate: String,
@@ -38,12 +38,12 @@ const paymentSchema = new Schema({
       status: String,
       description: String,
       externalReference: String,
-      confirmedDate: String,
-      originalValue: String,
-      interestValue: String,
+      confirmedDate: String || null,
+      originalValue: String || null,
+      interestValue: String || null,
       originalDueDate: String,
-      paymentDate: String,
-      clientPaymentDate: String,
+      paymentDate: String || null,
+      clientPaymentDate: String || null,
       invoiceUrl: String,
       bankSlipUrl: String,
       invoiceNumber: String,
@@ -52,7 +52,7 @@ const paymentSchema = new Schema({
         creditCardNumber: String,
         creditCardBrand: String,
         creditCardToken: String
-      }
+      } || null
     }
   }
 })
