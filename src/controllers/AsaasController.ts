@@ -194,7 +194,27 @@ export default class AsaasController {
     const { paymentsReadyToInvoice } = req
     try {
       for (const p of paymentsReadyToInvoice) {
-        await asaasAPI.post('/api/v3/invoices', {})
+        const body = {
+          payment: 1,
+          serviceDescription: `[Auto] Nota Fiscal da Fatura ${p.payload.payment.id}`,
+          observations: '',
+          value: p.payload.payment.value,
+          deductions: 0,
+          effectiveDate: p.scheduledInvoiceDate,
+          municipalServiceCode: '17.02',
+          municipalServiceName: 'Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível, redação, edição, interpretação, revisão, tradução, apoio e infra estrutura administrativa e congêneres.',
+          taxes: {
+            retainIss: false,
+            iss: 0.2,
+            cofins: 0,
+            csll: 0,
+            inss: 0,
+            ir: 0,
+            pis: 0
+          }
+        }
+        // await asaasAPI.post('/api/v3/invoices', {})
+        console.log(body)
       }
       return res.end()
     } catch (err) {
