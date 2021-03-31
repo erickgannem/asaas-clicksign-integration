@@ -15,7 +15,7 @@ import checkPaymentType from '../helpers/checkPaymentType'
 import Charge from '../interfaces/Charge'
 import db from '../database/connection'
 
-import PaymentDoc from '../database/interfaces/PaymentDoc'
+import PaymentDocument from '../database/interfaces/PaymentDocument'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -165,8 +165,8 @@ export default class AsaasController {
 
   static async checkIfPaymentIsProcessed (req: Request, res: Response, next: NextFunction) {
     try {
-      const payments: PaymentDoc[] = await db.Payment.find()
-      const unprocessedPayments: PaymentDoc[] = payments.filter((paymentDocument: PaymentDoc) => {
+      const payments: PaymentDocument[] = await db.Payment.find()
+      const unprocessedPayments: PaymentDocument[] = payments.filter((paymentDocument: PaymentDocument) => {
         const { processed } = paymentDocument
         return !processed
       })
@@ -182,7 +182,7 @@ export default class AsaasController {
     const { unprocessedPayments } = req
     const TODAY = new Date()
 
-    const paymentsReadyToInvoice: PaymentDoc[] = unprocessedPayments.filter((paymentDocument: PaymentDoc) => {
+    const paymentsReadyToInvoice: PaymentDocument[] = unprocessedPayments.filter((paymentDocument: PaymentDocument) => {
       const { scheduledInvoiceDate } = paymentDocument
       return differenceInCalendarDays(scheduledInvoiceDate, TODAY) <= 0
     })
@@ -193,7 +193,6 @@ export default class AsaasController {
 
   static async createInvoice (req: Request, res: Response, next: NextFunction) {
     // awaiting for implementation
-    const { paymentsReadyToInvoice } = req
     try {
       return res.end()
     } catch (err) {

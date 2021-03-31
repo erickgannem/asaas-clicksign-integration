@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-export default interface PaymentDoc extends mongoose.Document {
+export default interface PaymentDocument extends mongoose.Document {
   processed: boolean,
   scheduledInvoiceDate: Date,
   paymentData: {

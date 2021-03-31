@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import PaymentDoc from '../interfaces/PaymentDoc'
+import PaymentDocument from '../interfaces/PaymentDocument'
 
 const { Schema, model } = mongoose
 
@@ -57,6 +57,6 @@ const paymentSchema = new Schema({
   }
 })
 
-const Payment = model<PaymentDoc>('Payment', paymentSchema)
+const Payment = model<PaymentDocument>('Payment', paymentSchema)
 
 export default Payment
