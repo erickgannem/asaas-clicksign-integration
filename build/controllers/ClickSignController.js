@@ -45,7 +45,7 @@ var cache_1 = __importDefault(require("../cache"));
 var ClickSignController = /** @class */ (function () {
     function ClickSignController() {
     }
-    ClickSignController.listenWebhook = function (req, res, next) {
+    ClickSignController.documentWebhook = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
             var headers, rawBody, body, HMAC_SECRET_KEY, hmac, hash, sha256matches, event_1, documentKey_1, redisGetResponse, documentIsCached_1, err_1;
             return __generator(this, function (_a) {
@@ -103,16 +103,17 @@ var ClickSignController = /** @class */ (function () {
     };
     ClickSignController.getDocument = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var clicksignDocumentKey, documentRequest, data, err_2;
+            var clicksignDocumentKey, CLICKSIGN_API_TOKEN, documentRequest, data, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         clicksignDocumentKey = req.clicksignDocumentKey;
+                        CLICKSIGN_API_TOKEN = process.env.CLICKSIGN_API_TOKEN;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         process.stdout.write("\n>> [ClickSign Controller] Closed document: " + clicksignDocumentKey + " being processed");
-                        return [4 /*yield*/, clickSignApi_1.default.get("/api/v1/documents/" + clicksignDocumentKey + "?access_token=" + process.env.CLICKSIGN_API_TOKEN)];
+                        return [4 /*yield*/, clickSignApi_1.default.get("/api/v1/documents/" + clicksignDocumentKey + "?access_token=" + CLICKSIGN_API_TOKEN)];
                     case 2:
                         documentRequest = _a.sent();
                         data = documentRequest.data;
@@ -121,36 +122,6 @@ var ClickSignController = /** @class */ (function () {
                     case 3:
                         err_2 = _a.sent();
                         return [2 /*return*/, next(err_2)];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    ClickSignController.createDocument = function (req, res, next) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, TEMPLATE_KEY, CLICKSIGN_API_TOKEN, cpf, data, err_3;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = process.env, TEMPLATE_KEY = _a.TEMPLATE_KEY, CLICKSIGN_API_TOKEN = _a.CLICKSIGN_API_TOKEN;
-                        _b.label = 1;
-                    case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        cpf = req.body.cpf;
-                        return [4 /*yield*/, clickSignApi_1.default.post("/api/v1/templates/" + TEMPLATE_KEY + "/documents?access_token=" + CLICKSIGN_API_TOKEN, {
-                                document: {
-                                    path: "/Modelos/FORM-" + cpf + ".docx",
-                                    template: {
-                                        data: req.body
-                                    }
-                                }
-                            })];
-                    case 2:
-                        data = (_b.sent()).data;
-                        return [2 /*return*/, res.status(200).json(data.document)];
-                    case 3:
-                        err_3 = _b.sent();
-                        return [2 /*return*/, next(err_3)];
                     case 4: return [2 /*return*/];
                 }
             });

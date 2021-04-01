@@ -39,10 +39,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var date_fns_1 = require("date-fns");
 var asaasApi_1 = __importDefault(require("../helpers/asaasApi"));
 var removeCPFchars_1 = __importDefault(require("../helpers/removeCPFchars"));
-var date_fns_1 = require("date-fns");
 var checkPaymentType_1 = __importDefault(require("../helpers/checkPaymentType"));
+var connection_1 = __importDefault(require("../database/connection"));
 var AsaasController = /** @class */ (function () {
     function AsaasController() {
     }
@@ -166,6 +167,160 @@ var AsaasController = /** @class */ (function () {
                                 message: err_3.response.data.errors[0].description
                             })];
                     case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AsaasController.paymentWebhook = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var body, event, PAYMENT_RECEIVED;
+            return __generator(this, function (_a) {
+                body = req.body;
+                event = body.event;
+                PAYMENT_RECEIVED = 'PAYMENT_RECEIVED';
+                if (event === PAYMENT_RECEIVED) {
+                    req.asaasPaymentInformation = body;
+                    return [2 /*return*/, next()];
+                }
+                else {
+                    process.stdout.write('\n>> [Asaas Controller] Payment still not confirmed. Skipping\n');
+                    return [2 /*return*/, res.status(200).json({ message: 'Payment still not confirmed. Skipping' })];
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    AsaasController.savePaymentToDB = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var INVOICING_DEADLINE_DAYS, asaasPaymentInformation, payment, paymentDate, confirmedDate, effectivePaymentDay, scheduledInvoiceDate, payment_1, err_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        INVOICING_DEADLINE_DAYS = 10;
+                        asaasPaymentInformation = req.asaasPaymentInformation;
+                        payment = asaasPaymentInformation.payment;
+                        paymentDate = payment.paymentDate, confirmedDate = payment.confirmedDate;
+                        effectivePaymentDay = paymentDate || confirmedDate;
+                        scheduledInvoiceDate = date_fns_1.addDays(date_fns_1.parseISO(effectivePaymentDay), INVOICING_DEADLINE_DAYS);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, connection_1.default.Payment.create({
+                                scheduledInvoiceDate: scheduledInvoiceDate,
+                                payload: asaasPaymentInformation
+                            })];
+                    case 2:
+                        payment_1 = _a.sent();
+                        return [2 /*return*/, res.status(200).json({ message: 'Payment received:' + payment_1 })];
+                    case 3:
+                        err_4 = _a.sent();
+                        return [2 /*return*/, next(err_4)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AsaasController.checkIfPaymentIsProcessed = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var payments, unprocessedPayments, err_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, connection_1.default.Payment.find()];
+                    case 1:
+                        payments = _a.sent();
+                        unprocessedPayments = payments.filter(function (paymentDocument) {
+                            var processed = paymentDocument.processed;
+                            return !processed;
+                        });
+                        req.unprocessedPayments = unprocessedPayments;
+                        return [2 /*return*/, next()];
+                    case 2:
+                        err_5 = _a.sent();
+                        return [2 /*return*/, next(err_5)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AsaasController.checkPaymentDate = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var unprocessedPayments, TODAY, paymentsReadyToInvoice;
+            return __generator(this, function (_a) {
+                unprocessedPayments = req.unprocessedPayments;
+                TODAY = new Date();
+                paymentsReadyToInvoice = unprocessedPayments.filter(function (paymentDocument) {
+                    var scheduledInvoiceDate = paymentDocument.scheduledInvoiceDate;
+                    return date_fns_1.differenceInCalendarDays(scheduledInvoiceDate, TODAY) <= 0;
+                });
+                req.paymentsReadyToInvoice = paymentsReadyToInvoice;
+                return [2 /*return*/, next()];
+            });
+        });
+    };
+    AsaasController.createInvoice = function (req, res, next) {
+        return __awaiter(this, void 0, void 0, function () {
+            var paymentsReadyToInvoice, processAndSave, _i, paymentsReadyToInvoice_1, item, _a, value, id, reg, body, err_6;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        paymentsReadyToInvoice = req.paymentsReadyToInvoice;
+                        processAndSave = function (item) { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        item.processed = true;
+                                        return [4 /*yield*/, item.save()];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); };
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 6, , 7]);
+                        _i = 0, paymentsReadyToInvoice_1 = paymentsReadyToInvoice;
+                        _b.label = 2;
+                    case 2:
+                        if (!(_i < paymentsReadyToInvoice_1.length)) return [3 /*break*/, 5];
+                        item = paymentsReadyToInvoice_1[_i];
+                        _a = item.payload.payment, value = _a.value, id = _a.id;
+                        reg = /([0-9])\w+/g;
+                        body = {
+                            payment: id,
+                            serviceDescription: "[Auto] Nota Fiscal da Fatura " + reg.exec(id)[0],
+                            observations: '',
+                            value: value,
+                            deductions: 0,
+                            effectiveDate: date_fns_1.format(item.scheduledInvoiceDate, 'yyyy-MM-dd'),
+                            municipalServiceCode: '17.02',
+                            municipalServiceName: 'Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível, redação, edição, interpretação, revisão, tradução, apoio e infra estrutura administrativa e congêneres.',
+                            taxes: {
+                                retainIss: false,
+                                iss: 2,
+                                cofins: 0,
+                                csll: 0,
+                                inss: 0,
+                                ir: 0,
+                                pis: 0
+                            }
+                        };
+                        return [4 /*yield*/, asaasApi_1.default.post('/api/v3/invoices', body)];
+                    case 3:
+                        _b.sent();
+                        processAndSave(item);
+                        _b.label = 4;
+                    case 4:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 5: return [2 /*return*/, res.end()];
+                    case 6:
+                        err_6 = _b.sent();
+                        return [2 /*return*/, next(err_6)];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
