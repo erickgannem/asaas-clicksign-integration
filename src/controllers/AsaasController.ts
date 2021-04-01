@@ -223,7 +223,7 @@ export default class AsaasController {
         await asaasAPI.post('/api/v3/invoices', body)
         processAndSave(item)
       }
-      return res.end()
+      return res.status(200).end()
     } catch (err) {
       return next(err)
     }

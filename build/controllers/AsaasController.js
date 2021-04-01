@@ -316,7 +316,7 @@ var AsaasController = /** @class */ (function () {
                     case 4:
                         _i++;
                         return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, res.end()];
+                    case 5: return [2 /*return*/, res.status(200).end()];
                     case 6:
                         err_6 = _b.sent();
                         return [2 /*return*/, next(err_6)];
