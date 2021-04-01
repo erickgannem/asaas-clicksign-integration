@@ -19,7 +19,7 @@ const {
   getDocument
 } = ClickSignController
 
-routes.post('/', documentWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
+routes.post('/documents', documentWebhook, getDocument, fetchClients, checkIfClientExists, createCharge)
 routes.post('/payments', paymentWebhook, savePaymentToDB)
 routes.get('/invoices', checkIfPaymentIsProcessed, checkPaymentDate, createInvoice)
 

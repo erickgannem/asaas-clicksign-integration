@@ -51,35 +51,15 @@ export default class ClickSignController {
 
   static async getDocument (req: Request, res: Response, next: NextFunction) {
     const { clicksignDocumentKey } = req
+    const { CLICKSIGN_API_TOKEN } = process.env
     try {
       process.stdout.write(`\n>> [ClickSign Controller] Closed document: ${clicksignDocumentKey} being processed`)
 
-      const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${process.env.CLICKSIGN_API_TOKEN}`)
+      const documentRequest = await clickSignAPI.get(`/api/v1/documents/${clicksignDocumentKey}?access_token=${CLICKSIGN_API_TOKEN}`)
       const { data } = documentRequest
       req.clicksignDocumentData = data
 
       return next()
-    } catch (err) {
-      return next(err)
-    }
-  }
-
-  static async createDocument (req: Request, res: Response, next: NextFunction) {
-    const { TEMPLATE_KEY, CLICKSIGN_API_TOKEN } = process.env
-    try {
-      const {
-        cpf
-      } = req.body
-
-      const { data } = await clickSignAPI.post(`/api/v1/templates/${TEMPLATE_KEY}/documents?access_token=${CLICKSIGN_API_TOKEN}`, {
-        document: {
-          path: `/Modelos/FORM-${cpf}.docx`,
-          template: {
-            data: req.body
-          }
-        }
-      })
-      return res.status(200).json(data.document)
     } catch (err) {
       return next(err)
     }

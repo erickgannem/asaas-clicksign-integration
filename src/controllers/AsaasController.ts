@@ -192,20 +192,27 @@ export default class AsaasController {
 
   static async createInvoice (req: Request, res: Response, next: NextFunction) {
     const { paymentsReadyToInvoice } = req
+    const processAndSave = async (item: PaymentDocument) => {
+      item.processed = true
+      await item.save()
+    }
     try {
-      for (const p of paymentsReadyToInvoice) {
+      for (const item of paymentsReadyToInvoice) {
+        const { value, id } = item.payload.payment
+        const reg = /([0-9])\w+/g
+
         const body = {
-          payment: 1,
-          serviceDescription: `[Auto] Nota Fiscal da Fatura ${p.payload.payment.id}`,
+          payment: id,
+          serviceDescription: `[Auto] Nota Fiscal da Fatura ${reg.exec(id)![0]}`,
           observations: '',
-          value: p.payload.payment.value,
+          value: value,
           deductions: 0,
-          effectiveDate: p.scheduledInvoiceDate,
+          effectiveDate: format(item.scheduledInvoiceDate, 'yyyy-MM-dd'),
           municipalServiceCode: '17.02',
           municipalServiceName: 'Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível, redação, edição, interpretação, revisão, tradução, apoio e infra estrutura administrativa e congêneres.',
           taxes: {
             retainIss: false,
-            iss: 0.2,
+            iss: 2,
             cofins: 0,
             csll: 0,
             inss: 0,
@@ -213,8 +220,8 @@ export default class AsaasController {
             pis: 0
           }
         }
-        // await asaasAPI.post('/api/v3/invoices', {})
-        console.log(body)
+        await asaasAPI.post('/api/v3/invoices', body)
+        processAndSave(item)
       }
       return res.end()
     } catch (err) {
