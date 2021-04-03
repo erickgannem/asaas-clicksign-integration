@@ -182,6 +182,8 @@ export default class AsaasController {
     const { unprocessedPayments } = req
     const TODAY = new Date()
 
+    process.stdout.write(`\n>> [Asaas Controller] Checking payments to invoice on: ${TODAY}\n`)
+
     const paymentsReadyToInvoice: PaymentDocument[] = unprocessedPayments.filter((paymentDocument: PaymentDocument) => {
       const { scheduledInvoiceDate } = paymentDocument
       return differenceInCalendarDays(scheduledInvoiceDate, TODAY) <= 0

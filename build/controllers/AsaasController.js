@@ -251,6 +251,7 @@ var AsaasController = /** @class */ (function () {
             return __generator(this, function (_a) {
                 unprocessedPayments = req.unprocessedPayments;
                 TODAY = new Date();
+                process.stdout.write("\n>> [Asaas Controller] Checking payments to invoice on: " + TODAY + "\n");
                 paymentsReadyToInvoice = unprocessedPayments.filter(function (paymentDocument) {
                     var scheduledInvoiceDate = paymentDocument.scheduledInvoiceDate;
                     return date_fns_1.differenceInCalendarDays(scheduledInvoiceDate, TODAY) <= 0;
