@@ -211,6 +211,7 @@ var AsaasController = /** @class */ (function () {
                             })];
                     case 2:
                         payment_1 = _a.sent();
+                        process.stdout.write("\n>> [Asaas Controller] Payment succesfully saved into database: " + payment_1.id + "\n");
                         return [2 /*return*/, res.status(200).json({ message: 'Payment received:' + payment_1 })];
                     case 3:
                         err_4 = _a.sent();

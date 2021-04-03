@@ -156,6 +156,7 @@ export default class AsaasController {
         payload: asaasPaymentInformation
       })
 
+      process.stdout.write(`\n>> [Asaas Controller] Payment succesfully saved into database: ${payment.id}\n`)
       return res.status(200).json({ message: 'Payment received:' + payment })
     } catch (err) {
       return next(err)
