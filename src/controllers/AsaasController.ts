@@ -16,6 +16,7 @@ import Charge from '../interfaces/Charge'
 import db from '../database/connection'
 
 import PaymentDocument from '../database/interfaces/PaymentDocument'
+import { AxiosResponse } from 'axios'
 
 export default class AsaasController {
   static async fetchClients (req: Request, res: Response, next: NextFunction) {
@@ -199,6 +200,7 @@ export default class AsaasController {
       item.processed = true
       await item.save()
     }
+    const paymentPromises: Promise<AxiosResponse>[] = []
     try {
       for (const item of paymentsReadyToInvoice) {
         const { value, id } = item.payload.payment
@@ -223,9 +225,16 @@ export default class AsaasController {
             pis: 0
           }
         }
-        await asaasAPI.post('/api/v3/invoices', body)
-        processAndSave(item)
+
+         const call = asaasAPI.post('/api/v3/invoices', body)
+
+         paymentPromises.push(call)
+         processAndSave(item)
       }
+
+      const processedPayments = await Promise.allSettled(paymentPromises)
+
+      process.stdout.write(`\n>> [Asaas Controller] Processed payments: ${processedPayments}\n`)
       return res.status(200).end()
     } catch (err) {
       return next(err)
