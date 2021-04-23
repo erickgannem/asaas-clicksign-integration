@@ -47,7 +47,7 @@ var ClickSignController = /** @class */ (function () {
     }
     ClickSignController.documentWebhook = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var headers, rawBody, body, HMAC_SECRET_KEY, hmac, hash, sha256matches, event_1, documentKey_1, redisGetResponse, documentIsCached_1, err_1;
+            var headers, rawBody, body, HMAC_SECRET_KEY, hmac, hash, sha256matches, event, documentKey_1, redisGetResponse, documentIsCached_1, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -68,9 +68,9 @@ var ClickSignController = /** @class */ (function () {
                             process.stdout.write('\n>> [ClickSign Controller] SHA256 does not match!\n');
                             throw new Error('SHA256 does not match!');
                         }
-                        event_1 = headers.event;
+                        event = headers.event;
                         documentKey_1 = body.document.key;
-                        if (!(event_1 === 'auto_close' || event_1 === 'close')) return [3 /*break*/, 3];
+                        if (!(event === 'auto_close' || event === 'close')) return [3 /*break*/, 3];
                         return [4 /*yield*/, cache_1.default.get(documentKey_1)];
                     case 2:
                         redisGetResponse = _a.sent();

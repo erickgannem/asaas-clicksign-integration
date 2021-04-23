@@ -76,7 +76,7 @@ var AsaasController = /** @class */ (function () {
     };
     AsaasController.checkIfClientExists = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var asaasClient, clicksignDocumentData, clientExists, data, name_1, phone, addressNumber, mobilePhone, body, asaasResponse, newClient, err_2;
+            var asaasClient, clicksignDocumentData, clientExists, data, name, phone, addressNumber, mobilePhone, body, asaasResponse, newClient, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -87,12 +87,12 @@ var AsaasController = /** @class */ (function () {
                     case 1:
                         _a.trys.push([1, 3, , 4]);
                         data = clicksignDocumentData.document.template.data;
-                        name_1 = clicksignDocumentData.document.template.data['nome completo'];
+                        name = clicksignDocumentData.document.template.data['nome completo'];
                         phone = clicksignDocumentData.document.template.data['telefone residencial'];
                         addressNumber = clicksignDocumentData.document.template.data['número'];
                         mobilePhone = clicksignDocumentData.document.template.data['numero whatsapp'];
                         body = {
-                            name: name_1,
+                            name: name,
                             cpfCnpj: data.cpf,
                             email: data.email,
                             mobilePhone: mobilePhone,
@@ -263,7 +263,7 @@ var AsaasController = /** @class */ (function () {
     };
     AsaasController.createInvoice = function (req, res, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var paymentsReadyToInvoice, processAndSave, _i, paymentsReadyToInvoice_1, item, _a, value, id, reg, body, err_6;
+            var paymentsReadyToInvoice, processAndSave, paymentPromises, _i, paymentsReadyToInvoice_1, item, _a, value, id, reg, body, call, processedPayments, err_6;
             var _this = this;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -281,48 +281,46 @@ var AsaasController = /** @class */ (function () {
                                 }
                             });
                         }); };
+                        paymentPromises = [];
                         _b.label = 1;
                     case 1:
-                        _b.trys.push([1, 6, , 7]);
-                        _i = 0, paymentsReadyToInvoice_1 = paymentsReadyToInvoice;
-                        _b.label = 2;
+                        _b.trys.push([1, 3, , 4]);
+                        for (_i = 0, paymentsReadyToInvoice_1 = paymentsReadyToInvoice; _i < paymentsReadyToInvoice_1.length; _i++) {
+                            item = paymentsReadyToInvoice_1[_i];
+                            _a = item.payload.payment, value = _a.value, id = _a.id;
+                            reg = /([0-9])\w+/g;
+                            body = {
+                                payment: id,
+                                serviceDescription: "[Auto] Nota Fiscal da Fatura " + reg.exec(id)[0],
+                                observations: '',
+                                value: value,
+                                deductions: 0,
+                                effectiveDate: date_fns_1.format(item.scheduledInvoiceDate, 'yyyy-MM-dd'),
+                                municipalServiceCode: '17.02',
+                                municipalServiceName: 'Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível, redação, edição, interpretação, revisão, tradução, apoio e infra estrutura administrativa e congêneres.',
+                                taxes: {
+                                    retainIss: false,
+                                    iss: 2,
+                                    cofins: 0,
+                                    csll: 0,
+                                    inss: 0,
+                                    ir: 0,
+                                    pis: 0
+                                }
+                            };
+                            call = asaasApi_1.default.post('/api/v3/invoices', body);
+                            paymentPromises.push(call);
+                            processAndSave(item);
+                        }
+                        return [4 /*yield*/, Promise.allSettled(paymentPromises)];
                     case 2:
-                        if (!(_i < paymentsReadyToInvoice_1.length)) return [3 /*break*/, 5];
-                        item = paymentsReadyToInvoice_1[_i];
-                        _a = item.payload.payment, value = _a.value, id = _a.id;
-                        reg = /([0-9])\w+/g;
-                        body = {
-                            payment: id,
-                            serviceDescription: "[Auto] Nota Fiscal da Fatura " + reg.exec(id)[0],
-                            observations: '',
-                            value: value,
-                            deductions: 0,
-                            effectiveDate: date_fns_1.format(item.scheduledInvoiceDate, 'yyyy-MM-dd'),
-                            municipalServiceCode: '17.02',
-                            municipalServiceName: 'Datilografia, digitação, estenografia, expediente, secretaria em geral, resposta audível, redação, edição, interpretação, revisão, tradução, apoio e infra estrutura administrativa e congêneres.',
-                            taxes: {
-                                retainIss: false,
-                                iss: 2,
-                                cofins: 0,
-                                csll: 0,
-                                inss: 0,
-                                ir: 0,
-                                pis: 0
-                            }
-                        };
-                        return [4 /*yield*/, asaasApi_1.default.post('/api/v3/invoices', body)];
+                        processedPayments = _b.sent();
+                        process.stdout.write("\n>> [Asaas Controller] Processed payments: " + processedPayments + "\n");
+                        return [2 /*return*/, res.status(200).end()];
                     case 3:
-                        _b.sent();
-                        processAndSave(item);
-                        _b.label = 4;
-                    case 4:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, res.status(200).end()];
-                    case 6:
                         err_6 = _b.sent();
                         return [2 /*return*/, next(err_6)];
-                    case 7: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
