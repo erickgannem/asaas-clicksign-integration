@@ -226,10 +226,10 @@ export default class AsaasController {
           }
         }
 
-         const call = asaasAPI.post('/api/v3/invoices', body)
+        const call = asaasAPI.post('/api/v3/invoices', body)
 
-         paymentPromises.push(call)
-         processAndSave(item)
+        paymentPromises.push(call)
+        processAndSave(item)
       }
 
       const processedPayments = await Promise.allSettled(paymentPromises)
